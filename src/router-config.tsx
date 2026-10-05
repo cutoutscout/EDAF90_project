@@ -8,7 +8,7 @@ import {
 } from "./components/ui/card";
 
 import Search from "./Search";
-import Population from "./Population";
+import Population_data from "./Population_data";
 import SearchHistory from "./SearchHistory";
 
 const routerConfig: RouteObject[] = [
@@ -25,7 +25,7 @@ const routerConfig: RouteObject[] = [
       },
       {
         path: "Befolknings data",
-        Component: Population,
+        Component: Population_data,
       },
       {
         path: "sökningshistorik",

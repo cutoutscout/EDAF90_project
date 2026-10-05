@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.6",
     "lucide-react": "^1.42.0",
+    "papaparse": "^5.7.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router": "^7.18.3",
@@ -30,7 +31,8 @@
   "devDependencies": {
     "@eslint/js": "^10",
     "@playwright/test": "^1.63.0",
-    "@types/node": "^24",
+    "@types/node": "^24.19.1",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6",
