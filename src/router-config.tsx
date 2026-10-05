@@ -44,9 +44,9 @@ function Home() {
   return (
     <Card className="md:w-3xl">
       <CardHeader>
-        <CardTitle>Välkommen till min salladsbar</CardTitle>
+        <CardTitle>Välkommen till skånes befolknings prognos</CardTitle>
         <CardDescription>
-          Här kan du komponera och beställa sallader.
+          
         </CardDescription>
       </CardHeader>
     </Card>
