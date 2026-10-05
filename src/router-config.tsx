@@ -6,8 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-import ComposeSalad from "./compose-salad";
-import ViewCart,{NewSaladInfobox} from "./view-cart";
+
+import Search from "./Search";
+import Population from "./Population";
+import SearchHistory from "./SearchHistory";
 
 const routerConfig: RouteObject[] = [
   {
@@ -18,24 +20,28 @@ const routerConfig: RouteObject[] = [
         Component: Home,
       },
       {
-      path: "compose-salad",
-      Component: ComposeSalad,
-    },
-    {
-      path: "view-cart",
-        Component: ViewCart,
-        children:[
-          {
-          path: "new/:uuid",
-          Component: NewSaladInfobox,
-          }
+        path: "sök",
+        Component: Search,
+      },
+      {
+        path: "Befolknings data",
+        Component: Population,
+      },
+      {
+        path: "sökningshistorik",
+          Component: SearchHistory,
+          /*children:[
+            {
+            path: "new/:uuid",
+            Component: NewSaladInfobox,
+            }
 
-        ]
-    },
-    {
-      path: "*",
-      Component: PageNotFound,
-    },
+          ]*/
+      },
+      {
+        path: "*",
+        Component: PageNotFound,
+      },
     ],
   },
 ];
