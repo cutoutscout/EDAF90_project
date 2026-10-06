@@ -1,9 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import Papa from 'papaparse';
-import fs from 'fs';
-
-
-const csv = fs.readFileSync('RS_befolkningsprognos.csv', 'utf8');
+import csv from "./RS_befolkningsprognos.csv?raw";
 
 
 const data = Papa.parse(csv, {
@@ -11,6 +8,9 @@ const data = Papa.parse(csv, {
   dynamicTyping: true,   // converts numbersfrom string to number
   skipEmptyLines: true
 });
+
+let parsedData: Record<string, any>[] = [];
+
 
 class Population {
  
@@ -59,7 +59,7 @@ class Population {
    * @throws if json is not an array, or any of the objects do not
    * have the filters attribute
    */
-  static parse(json: string): Population[] {
+  /*static parse(json: string): Population[] {
     const list = JSON.parse(json);
     if (!Array.isArray(list)) {
       throw new Error("not an array");
@@ -70,7 +70,46 @@ class Population {
       }
       return new Population(obj.filters, obj.uuid);
     });
+  }*/
+}
+
+
+/*
+* Extracts every unique value under a given coloum
+*/
+
+export function getUniqueValues(key:string): string[] {
+    const values= parsedData
+    .map((row: Record<string,any>)=>row[key])
+    .filter((val)=>val!==undefined && val !==null);
+
+
+    return Array.from(new Set(values)).sort((a,b) =>
+      String(a).localeCompare(String(b),'sv')
+    );
+}
+
+
+export async function LoadDataset(): Promise<void> {
+  const response = await fetch("/RS_befolkningsprognos.csv");
+  const csvText= await response.text();
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch dataset: ${response.statusText}`);
   }
+
+  const parsed = Papa.parse(csvText, {
+     header: true,          // converts rows into JS objects using column names as keys
+     dynamicTyping: true,   // converts numbersfrom string to number
+    skipEmptyLines: true
+  });
+
+  parsedData = parsed.data as Record<string, any>[];
+
+  // LOG LOADED DATA & COLUMNS
+  console.log("Loaded rows count:", parsedData.length);
+  console.log("Sample row:", parsedData[0]);
+  
 }
 
 export { Population };

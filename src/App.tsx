@@ -2,20 +2,12 @@ import { useState } from "react";
 import { Link, Outlet } from "react-router";
 
 import { inventory, type Inventory } from "@/inventory";
-import { Salad } from "@/salad";
 
 import {
   NavigationMenu,
   NavigationMenuItem,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-
-
-export type OutletContextType ={
-  inventory: Inventory;
-  cart: Salad[];
-  addSalad:(newSalad: Salad) => void;
-};
 
 
 function App() {
@@ -51,9 +43,11 @@ function App() {
           Befolknings data
         </Link>
       </NavigationMenuItem>
-
-
       </NavigationMenu>
+
+      <main>
+        <Outlet />
+      </main>
 
     </div>
   );

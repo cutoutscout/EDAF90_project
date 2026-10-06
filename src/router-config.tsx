@@ -8,8 +8,8 @@ import {
 } from "./components/ui/card";
 
 import Search from "./Search";
-import Population_data from "./Population_data";
-import SearchHistory from "./SearchHistory";
+//import Population_data from "./Population_data";
+//import SearchHistory from "./SearchHistory";
 
 const routerConfig: RouteObject[] = [
   {
@@ -20,16 +20,16 @@ const routerConfig: RouteObject[] = [
         Component: Home,
       },
       {
-        path: "sök",
+        path: "Search",
         Component: Search,
       },
-      {
-        path: "Befolknings data",
-        Component: Population_data,
-      },
-      {
-        path: "sökningshistorik",
-          Component: SearchHistory,
+      //{
+        //path: "Population",
+        //Component: Population_data,
+      //},
+      //{
+        //path: "SearchHistory",
+          //Component: SearchHistory,
           /*children:[
             {
             path: "new/:uuid",
@@ -37,7 +37,7 @@ const routerConfig: RouteObject[] = [
             }
 
           ]*/
-      },
+      //},
       {
         path: "*",
         Component: PageNotFound,
@@ -52,6 +52,7 @@ function Home() {
       <CardHeader>
         <CardTitle>Välkommen till skånes befolknings prognos</CardTitle>
         <CardDescription>
+          Välj i menyn för att söka i befolkningsdatan
           
         </CardDescription>
       </CardHeader>

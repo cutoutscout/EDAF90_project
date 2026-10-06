@@ -5,10 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { IngredientType, PartialInventory } from "@/inventory";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState } from "react";
+//import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import {
   Card,
@@ -18,91 +16,101 @@ import {
   CardTitle,
 } from "./components/ui/card";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+//import { Checkbox } from "@/components/ui/checkbox";
+//import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Salad } from "./salad";
+import { Population,getUniqueValues, LoadDataset } from "./population";
 
 import { useOutletContext, useNavigate } from "react-router";
-import type { OutletContextType } from "./App";
-import { useId } from "react";
+//import type { OutletContextType } from "./App";
+import { useId,useEffect, useState } from "react";
+//import { Vault } from "lucide-react";
 
 
 type SelectOption = {
   label: string;
   value: string;
+
 };
-/**
- * @returns an array with all names of ingridients with the given @type
- */
+  
+  
+//map unique values into SelectOption array
 function makeOptions(
-  type: IngredientType,
-  inventory: OutletContextType["inventory"]
+  fieldKey: string
 ): SelectOption[] {
-  return Object.keys(inventory)
-    .filter((name) => inventory[name].type === type)
-    .map((name) => ({
-      value: name,
-      label: `${name}, ${inventory[name].price} kr`,
-    }));
+  return getUniqueValues(fieldKey).map((val) =>({
+    label: String(val),
+    value: String (val),
+
+  }));
 }
 
 function Search() {
 
-  const { inventory, addSalad } = useOutletContext<OutletContextType>();
   const navigate =useNavigate();
 
-  const [foundation, setFoundation] = useState<SelectOption | null>(null);
-  const [protein, setProtein] = useState<SelectOption | null>(null);
-  const [extra, setExtra] = useState<PartialInventory>({});
-  const [dressing, setDressing] = useState<SelectOption | null>(null);
+  const [kommun, setKommun] = useState<SelectOption | null>(null);
+  const [gender, setGender] = useState<SelectOption | null>(null);
+  const [ageGroup, setAgeGroup] = useState<SelectOption | null>(null);
+  const [year, setYear] = useState<SelectOption | null>(null);
 
   const [showError, setShowError] = useState(false);
+  const [resultPopulation, setResultPopulation] = useState<number | null>(null);
+  
+  const kommunOptions = makeOptions("Kommun");
+  const genderOptions = makeOptions("Kön_klartext");
+  const ageGroupOptions = makeOptions("Åldersgrupp_klartext");
+  const yearOptions = makeOptions("År");
 
-  const foundationOptions = makeOptions("foundation", inventory);
-  const proteinOptions = makeOptions("protein", inventory);
-  const extraOptions = makeOptions("extra", inventory);
-  const dressingOptions = makeOptions("dressing", inventory);
+  const isInvalid = showError;
 
-  const extraCount = Object.keys(extra).length;
-  const isExtraInvalid = showError && extraCount <2;
+  const [isLoading, setIsLoading] =useState(true);
+
+  useEffect(() => {
+    LoadDataset().then(() => {
+      setIsLoading(false);
+    });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Card className="w-full p-6 text-center">
+        <p>Laddar befolkningsdata...</p>
+      </Card>
+    );
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setShowError(true);
+    
+    let pop = new Population(); 
 
-    let newSalad = new Salad(); 
-
-    if(!foundation || !protein || extraCount<2 ||!dressing){
+    if(!year){
+      setShowError(true);
       return;
+    }else {
+      pop = pop.add("År", year.value);
     }
 
-    if (foundation) {
-      newSalad = newSalad.add(foundation.value, inventory[foundation.value]);
-    }
-    if (protein) {
-      newSalad = newSalad.add(protein.value, inventory[protein.value]);
+    if (kommun) {
+      pop = pop.add("Kommun", kommun.value);
     }
 
-    Object.keys(extra).forEach((key) => {
-      newSalad = newSalad.add(key, extra[key]);
-    });
-
-    if (dressing) {
-      newSalad = newSalad.add(dressing.value, inventory[dressing.value]);
+    if (gender) {
+      pop = pop.add("Kön_klartext", gender.value);
     }
 
-    addSalad(newSalad);
+    if (ageGroup) {
+      pop = pop.add("Åldersgrupp_klartext", ageGroup.value);
+    }
 
-    console.log("Sumbitting salad",newSalad)
+    const total =pop.population();
 
-    setFoundation(null);
-    setProtein(null);
-    setExtra({});
-    setDressing(null);
+    setResultPopulation(total);
+
     setShowError(false);
 
-    navigate(`/view-cart/new/${newSalad.uuid}`);
+    //navigate(`/view-cart/new/${newSalad.uuid}`);
 
 }
 
@@ -111,91 +119,59 @@ function Search() {
     <Card className="w-full p-3">
       <form onSubmit={handleSubmit} noValidate>
       <CardHeader>
-        <CardTitle>Komponera en sallad</CardTitle>
+        <CardTitle>Sök Befolkningsprognos</CardTitle>
         <CardDescription>
-          Välj de ingredienser som ingår i salladen.
+          Välj de parametrar för att beräkna den sammanlagda folkmängden.
         </CardDescription>
       </CardHeader>
 
       <CardContent>
-          <SelectIngredient
-              label="Välj bas"
-              value={foundation}
-              options={foundationOptions}
-              onValueChange={setFoundation}
-              showError={showError}
+          <SelectFilter
+              label="Välj kommun"
+              value={kommun}
+              options={kommunOptions}
+              onValueChange={setKommun}
+              showError={false}
               />
-            vald bas: {foundation?.label}
+            vald kommun: {kommun?.label}
       </CardContent>
 
       <CardContent>
-          <SelectIngredient
-              label="Välj protein"
-              value={protein}
-              options={proteinOptions}
-              onValueChange={setProtein}
-              showError={showError}
+          <SelectFilter
+              label="Välj Kön"
+              value={gender}
+              options={genderOptions}
+              onValueChange={setGender}
+              showError={false}
               />
-            vald protein: {protein?.label}
+            valt kön: {gender?.label}
       </CardContent>
 
-      <fieldset className="mb-3 border border-border p-3 rounded-md">
-        <legend className="text-base font-semibold px-1">
-          Välj minst 2 extra ingredisenser
-        </legend>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-        {extraOptions.map((option)=>(
+       <CardContent>
+          <SelectFilter
+              label="Välj Åldersgrupp"
+              value={ageGroup}
+              options={ageGroupOptions}
+              onValueChange={setAgeGroup}
+              showError={false}
+              />
+            vald åldersgrupp: {ageGroup?.label}
+      </CardContent>
 
-          <div key={option.value} className="flex items-center gap-2 text-sm cursor-pointer">
-            <Checkbox
-            id={option.value}
-            checked={!!extra[option.value]}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                setExtra({
-                  ...extra,
-                  [option.value]: inventory[option.value],
-                });
-              } else {
-                const newExtra = { ...extra };
-                delete newExtra[option.value];
-                setExtra(newExtra);
-              }
-            }}
-        />
-        <Label
-          htmlFor={option.value}
-          className="text-sm front-normal cursor-pointer"
-        >
-          {option.label}
-        </Label>
-        </div>
-        ))}
-        </div>
-
-        {isExtraInvalid && (
-            <Alert variant="destructive" className="mt-3">
-              <AlertTitle>För få extra ingredienser</AlertTitle>
-              <AlertDescription>Välj minst två extra ingredienser</AlertDescription>
-            </Alert>
-          )}
-
-      
-      </fieldset>
-      <CardContent>
-          <SelectIngredient
-              label="Välj dressing"
-              value={dressing}
-              options={dressingOptions}
-              onValueChange={setDressing}
+       <CardContent>
+          <SelectFilter
+              label="Välj År"
+              value={year}
+              options={yearOptions}
+              onValueChange={setYear}
               showError={showError}
               />
-            vald dressing: {dressing?.label}
+            valt År: {year?.label}
       </CardContent>
 
       <div className="flex justify-end p-6 pt-0">
           <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-black border border-black">
-        Lägg till i varukorgen
+        Sök
       </Button>
     </div>
     
@@ -205,20 +181,20 @@ function Search() {
   );
 }
 
-type SelectIngredientType = {
+type SelectFilterProps = {
   label: string;
   value: SelectOption | null;
   onValueChange: (value: SelectOption | null) => void;
   options: SelectOption[];
   showError: boolean;
 };
-function SelectIngredient({
+function SelectFilter({
   label,
   value,
   onValueChange,
   options,
   showError,
-}: SelectIngredientType) {
+}: SelectFilterProps) {
   const invalid = showError && !value;
   const selectId = useId();
   return (
@@ -235,7 +211,7 @@ function SelectIngredient({
         }}
       >
         <SelectTrigger id ={selectId} aria-invalid={invalid} className="w-full!">
-          <SelectValue placeholder="gör ett val">
+          <SelectValue placeholder="Du måste välja ett år">
             {value ? value.label : null}
           </SelectValue>
           
@@ -248,7 +224,7 @@ function SelectIngredient({
           ))}
         </SelectContent>
       </Select>
-      {invalid && <FieldError>Gör ett val.</FieldError>}
+      {invalid && <FieldError>Du måste välja ett år.</FieldError>}
     </Field>
   );
 }
